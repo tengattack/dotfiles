@@ -1,4 +1,5 @@
 #!/bin/bash
+set -e
 
 yum install -y mosh
 
@@ -101,6 +102,11 @@ echo '{\n  "insecure-registries": ["docker00:5000"]\n}' | sudo tee /etc/docker/d
 # docker (users)
 sudo usermod -aG docker teng
 
+# reload user group
+exit
+su teng
+cd ~
+
 # beats
 sudo tee /etc/yum.repos.d/elasticsearch.repo << EOF
 [elasticsearch-6.x]
@@ -114,9 +120,3 @@ type=rpm-md
 EOF
 sudo yum install -y metricbeat-6.2.4-1.x86_64
 echo 'alias metricbeat="/usr/share/metricbeat/bin/metricbeat -c /etc/metricbeat/metricbeat.yml -path.home /usr/share/metricbeat -path.config /etc/metricbeat -path.data /var/lib/metricbeat -path.logs /var/log/metricbeat"' | sudo tee -a /etc/profile
-
-# reload user group
-exit
-su teng
-cd ~
-
