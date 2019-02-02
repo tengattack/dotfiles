@@ -70,7 +70,8 @@ sed -i -e 's/^\(plugins=(.*\)$/\1\n  zsh-autosuggestions\n  zsh-syntax-highlight
 # oh-my-zsh (theme)
 cp ~/.oh-my-zsh/themes/robbyrussell.zsh-theme ~/.oh-my-zsh/custom/themes/mytheme.zsh-theme
 sed -i -e 's/^\(PROMPT='"'"'\)\(\${ret_status}\)/\1%{$fg_bold[white]%}%M \2/g' ~/.oh-my-zsh/custom/themes/mytheme.zsh-theme
-sed -i -e 's/^\(ZSH_THEME=\).*$/\1"mytheme"/g' ~/.zshrc
+#sed -i -e 's/^\(ZSH_THEME=\).*$/\1"mytheme"/g' ~/.zshrc
+sed -i -e 's/^\(ZSH_THEME=\).*$/\1"af-magic"/g' ~/.zshrc
 # oh-my-zsh (reload)
 source ~/.zshrc
 
@@ -97,6 +98,7 @@ sudo systemctl enable docker
 sudo systemctl start docker
 sudo docker run hello-world
 echo '{\n  "insecure-registries": ["docker00:5000"]\n}' | sudo tee /etc/docker/daemon.json
+sudo systemctl restart docker
 # TODO: join swarm
 # ...
 # docker (users)
