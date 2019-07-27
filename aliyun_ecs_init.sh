@@ -50,30 +50,27 @@ sed -i -e 's/^\(PasswordAuthentication\|PermitRootLogin\|UsePAM\|GSSAPIAuthentic
 sed -i -e "s/\(Subsystem\s.*\)$/\1\n\nAllowUsers ${NEWUSER}/g" /etc/ssh/sshd_config
 systemctl restart sshd
 
-# su teng
-su teng
-cd ~
-sudo yum install -y git zsh tmux jq
-sudo usermod -s /bin/zsh teng
-touch ~/.zshrc
-exit
-
-# su teng (zsh)
-su teng
-cd ~
+yum install -y git zsh tmux jq
+usermod -s /bin/zsh teng
+touch /home/teng/.zshrc
 
 # oh-my-zsh (plugins)
-sh -c "$(curl -fsSL https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh)"
+tee /home/teng/install-omz.sh << EOF
+#!/bin/sh
+RUNZSH=no CHSH=no sh -c "\$(curl -fsSL https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh)"
 git clone https://github.com/zsh-users/zsh-autosuggestions ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-autosuggestions
 git clone https://github.com/zsh-users/zsh-syntax-highlighting.git ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-syntax-highlighting
-sed -i -e 's/^\(plugins=(.*\)$/\1\n  zsh-autosuggestions\n  zsh-syntax-highlighting/g' ~/.zshrc
+sed -i -e 's/^\(^plugins=(\)/\1\n  zsh-autosuggestions\n  zsh-syntax-highlighting\n  /g' ~/.zshrc
 # oh-my-zsh (theme)
-cp ~/.oh-my-zsh/themes/robbyrussell.zsh-theme ~/.oh-my-zsh/custom/themes/mytheme.zsh-theme
-sed -i -e 's/^\(PROMPT='"'"'\)\(\${ret_status}\)/\1%{$fg_bold[white]%}%M \2/g' ~/.oh-my-zsh/custom/themes/mytheme.zsh-theme
-#sed -i -e 's/^\(ZSH_THEME=\).*$/\1"mytheme"/g' ~/.zshrc
+#cp ~/.oh-my-zsh/themes/robbyrussell.zsh-theme ~/.oh-my-zsh/custom/themes/mytheme.zsh-theme
+#sed -i -e 's/^\(PROMPT='"'"'\)\(\${ret_status}\)/\1%{$fg_bold[white]%}%M \2/g' ~/.oh-my-zsh/custom/themes/mytheme.zsh-theme
 sed -i -e 's/^\(ZSH_THEME=\).*$/\1"af-magic"/g' ~/.zshrc
 # oh-my-zsh (reload)
-source ~/.zshrc
+#source ~/.zshrc
+EOF
+chown teng:teng /home/teng/install-omz.sh
+chmod +x /home/teng/install-omz.sh
+su teng -c /home/teng/install-omz.sh
 
 # tmux
 curl https://raw.githubusercontent.com/tengattack/dotfiles/master/tmux.conf -o ~/.tmux.conf
@@ -97,19 +94,15 @@ sudo yum install -y docker-ce
 sudo systemctl enable docker
 sudo systemctl start docker
 sudo docker run hello-world
-echo '{\n  "insecure-registries": ["docker00:5000"]\n}' | sudo tee /etc/docker/daemon.json
+echo -e '{\n  "insecure-registries": ["docker00:5000"]\n}' | sudo tee /etc/docker/daemon.json
 sudo systemctl restart docker
 # TODO: join swarm
 # ...
 # docker (users)
-sudo usermod -aG docker teng
-
-# reload user group
-exit
-su teng
-cd ~
+usermod -aG docker teng
 
 # beats
+if [ "$1" == "beats" ]; then
 sudo tee /etc/yum.repos.d/elasticsearch.repo << EOF
 [elasticsearch-6.x]
 name=Elasticsearch repository for 6.x packages
@@ -122,3 +115,4 @@ type=rpm-md
 EOF
 sudo yum install -y metricbeat-6.2.4-1.x86_64
 echo 'alias metricbeat="/usr/share/metricbeat/bin/metricbeat -c /etc/metricbeat/metricbeat.yml -path.home /usr/share/metricbeat -path.config /etc/metricbeat -path.data /var/lib/metricbeat -path.logs /var/log/metricbeat"' | sudo tee -a /etc/profile
+fi
