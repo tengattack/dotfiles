@@ -51,12 +51,26 @@ sed -i -e "s/\(Subsystem\s.*\)$/\1\n\nAllowUsers ${NEWUSER}/g" /etc/ssh/sshd_con
 systemctl restart sshd
 
 yum install -y git zsh tmux jq
+
+# proxychains-ng
+mkdir src
+cd src
+git clone https://github.com/rofl0r/proxychains-ng.git
+cd proxychains-ng
+./configure --prefix=/usr --sysconfdir=/etc
+make
+sudo make install
+sudo make install-config
+sudo sed -i -e 's/^#\(quiet_mode\)/\1/g' /etc/proxychains.conf
+
+# zsh
 usermod -s /bin/zsh teng
 touch /home/teng/.zshrc
 
 # oh-my-zsh (plugins)
 tee /home/teng/install-omz.sh << EOF
 #!/bin/sh
+cd ~
 RUNZSH=no CHSH=no sh -c "\$(curl -fsSL https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh)"
 git clone https://github.com/zsh-users/zsh-autosuggestions ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-autosuggestions
 git clone https://github.com/zsh-users/zsh-syntax-highlighting.git ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-syntax-highlighting
@@ -113,6 +127,7 @@ enabled=1
 autorefresh=1
 type=rpm-md
 EOF
-sudo yum install -y metricbeat-6.2.4-1.x86_64
+sudo yum install -y filebeat-6.5.4-1.x86_64 metricbeat-6.5.4-1.x86_64
+echo 'alias filebeat="/usr/share/filebeat/bin/filebeat -c /etc/filebeat/filebeat.yml -path.home /usr/share/filebeat -path.config /etc/filebeat -path.data /var/lib/filebeat -path.logs /var/log/filebeat"' | sudo tee -a /etc/profile
 echo 'alias metricbeat="/usr/share/metricbeat/bin/metricbeat -c /etc/metricbeat/metricbeat.yml -path.home /usr/share/metricbeat -path.config /etc/metricbeat -path.data /var/lib/metricbeat -path.logs /var/log/metricbeat"' | sudo tee -a /etc/profile
 fi
