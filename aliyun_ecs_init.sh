@@ -50,7 +50,7 @@ sed -i -e 's/^\(PasswordAuthentication\|PermitRootLogin\|UsePAM\|GSSAPIAuthentic
 sed -i -e "s/\(Subsystem\s.*\)$/\1\n\nAllowUsers ${NEWUSER}/g" /etc/ssh/sshd_config
 systemctl restart sshd
 
-yum install -y git zsh tmux jq
+yum install -y git zsh tmux jq gcc make
 
 # proxychains-ng
 mkdir src
@@ -105,12 +105,13 @@ sudo yum-config-manager \
   --add-repo \
   https://download.docker.com/linux/centos/docker-ce.repo
 sudo yum install -y docker-ce
+mkdir /etc/docker
+mkdir -p /home/data/docker
 sudo systemctl enable docker
+echo -e '{\n  "graph": "/home/data/docker"\n}' | sudo tee /etc/docker/daemon.json
 sudo systemctl start docker
 sudo docker run hello-world
-echo -e '{\n  "insecure-registries": ["docker00:5000"]\n}' | sudo tee /etc/docker/daemon.json
-sudo systemctl restart docker
-# TODO: join swarm
+# TODO: join kubernetes
 # ...
 # docker (users)
 usermod -aG docker teng
