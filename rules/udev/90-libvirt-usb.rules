@@ -1,0 +1,10 @@
+ACTION=="add", \
+    SUBSYSTEM=="usb", \
+    ENV{ID_VENDOR_ID}=="03f0", \
+    ENV{ID_MODEL_ID}=="042a", \
+    RUN+="/usr/bin/virsh attach-device win7 /home/vms/dev/hostdev-03f0-042a.xml"
+ACTION=="remove", \
+    SUBSYSTEM=="usb", \
+    ENV{ID_VENDOR_ID}=="03f0", \
+    ENV{ID_MODEL_ID}=="042a", \
+    RUN+="/usr/bin/virsh detach-device win7 /home/vms/dev/hostdev-03f0-042a.xml"
