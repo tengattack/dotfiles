@@ -2,4 +2,5 @@
 *.conf text eol=lf
 *.sh text eol=lf
 *.py text eol=lf
+*.zsh* text eol=lf
 Dockerfile text eol=lf
